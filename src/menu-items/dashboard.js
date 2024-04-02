@@ -1,24 +1,32 @@
 // assets
-import { DashboardOutlined } from '@ant-design/icons';
-
+import { ReadOutlined, HomeOutlined } from '@ant-design/icons';
 // icons
 const icons = {
-  DashboardOutlined
+  ReadOutlined,
+  HomeOutlined
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
 
 const dashboard = {
   id: 'group-dashboard',
-  title: 'Navigation',
+  title: 'Explore',
   type: 'group',
   children: [
     {
-      id: 'dashboard',
-      title: 'Dashboard',
+      id: 'home',
+      title: 'Home',
       type: 'item',
       url: '/dashboard/default',
-      icon: icons.DashboardOutlined,
+      icon: icons.HomeOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'myBooks',
+      title: 'My Books',
+      type: 'item',
+      url: '/dashboard/myBooks',
+      icon: icons.ReadOutlined,
       breadcrumbs: false
     }
   ]

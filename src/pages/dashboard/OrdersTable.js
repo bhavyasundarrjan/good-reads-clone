@@ -1,98 +1,94 @@
-import PropTypes from 'prop-types';
-import { useState } from 'react';
+// import PropTypes from 'prop-types';
+import { useState, useEffect} from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+// import axios from 'axios';
+import BookShelfDropDown from './BookShelfDropDown';
+// import { CircularProgress } from '../../../node_modules/@mui/material/index';
+// import { Stack } from '../../../node_modules/@mui/material/index';
 // material-ui
-import { Box, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
-
+import { Box, Link, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Rating, Button } from '@mui/material';
+// import { TablePagination } from '../../../node_modules/@mui/material/index';
 // third-party
-import { NumericFormat } from 'react-number-format';
+// import { NumericFormat } from 'react-number-format';
 
 // project import
-import Dot from 'components/@extended/Dot';
+// import Dot from 'components/@extended/Dot';
+import { getBookShelfData } from 'utils/firebase.utils';
+import { CircularProgress } from '../../../node_modules/@mui/material/index';
+// import Typography from 'themes/overrides/Typography';
+// import Rating from '@mui/material/Rating';
+// import { Button } from '../../../node_modules/@mui/material/index';
 
-function createData(trackingNo, name, fat, carbs, protein) {
-  return { trackingNo, name, fat, carbs, protein };
-}
+// function createData(trackingNo, name, fat, carbs, protein) {
+//   return { trackingNo, name, fat, carbs, protein };
+// }
 
-const rows = [
-  createData(84564564, 'Camera Lens', 40, 2, 40570),
-  createData(98764564, 'Laptop', 300, 0, 180139),
-  createData(98756325, 'Mobile', 355, 1, 90989),
-  createData(98652366, 'Handset', 50, 1, 10239),
-  createData(13286564, 'Computer Accessories', 100, 1, 83348),
-  createData(86739658, 'TV', 99, 0, 410780),
-  createData(13256498, 'Keyboard', 125, 2, 70999),
-  createData(98753263, 'Mouse', 89, 2, 10570),
-  createData(98753275, 'Desktop', 185, 1, 98063),
-  createData(98753291, 'Chair', 100, 0, 14001)
-];
 
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
 
-function getComparator(order, orderBy) {
-  return order === 'desc' ? (a, b) => descendingComparator(a, b, orderBy) : (a, b) => -descendingComparator(a, b, orderBy);
-}
 
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
+// function stableSort(array, comparator) {
+//   const stabilizedThis = array?.map((el, index) => [el, index]);
+//   stabilizedThis?.sort((a, b) => {
+//     const order = comparator(a[0], b[0]);
+//     if (order !== 0) {
+//       return order;
+//     }
+//     return a[1] - b[1];
+//   });
+//   return stabilizedThis.map((el) => el[0]);
+// }
 
 // ==============================|| ORDER TABLE - HEADER CELL ||============================== //
 
 const headCells = [
   {
-    id: 'trackingNo',
+    id: 'cover',
     align: 'left',
     disablePadding: false,
-    label: 'Tracking No.'
+    label: 'Cover',
+    width:'15%'
   },
   {
-    id: 'name',
+    id: 'title',
     align: 'left',
     disablePadding: true,
-    label: 'Product Name'
+    label: 'Title',
+    width:'20%'
+   
   },
   {
-    id: 'fat',
-    align: 'right',
-    disablePadding: false,
-    label: 'Total Order'
-  },
-  {
-    id: 'carbs',
+    id: 'author',
     align: 'left',
     disablePadding: false,
-
-    label: 'Status'
+    label: 'Author',
+    width:'15%'
   },
   {
-    id: 'protein',
-    align: 'right',
+    id: 'shelf',
+    align: 'left',
     disablePadding: false,
-    label: 'Total Amount'
+    label: 'Shelf',
+    width:'15%'
+  },
+  {
+    id: 'rating',
+    align: 'left',
+    disablePadding: false,
+    label: 'Rating',
+    width:'20%'
+  },
+  {
+    id: 'review',
+    align: 'left',
+    disablePadding: false,
+    label: 'Review',
+    width:'15%'
   }
 ];
 
 // ==============================|| ORDER TABLE - HEADER ||============================== //
 
-function OrderTableHead({ order, orderBy }) {
+function OrderTableHead() {
   return (
     <TableHead>
       <TableRow>
@@ -101,7 +97,7 @@ function OrderTableHead({ order, orderBy }) {
             key={headCell.id}
             align={headCell.align}
             padding={headCell.disablePadding ? 'none' : 'normal'}
-            sortDirection={orderBy === headCell.id ? order : false}
+            width={headCell.width}
           >
             {headCell.label}
           </TableCell>
@@ -110,66 +106,62 @@ function OrderTableHead({ order, orderBy }) {
     </TableHead>
   );
 }
-
-OrderTableHead.propTypes = {
-  order: PropTypes.string,
-  orderBy: PropTypes.string
-};
-
-// ==============================|| ORDER TABLE - STATUS ||============================== //
-
-const OrderStatus = ({ status }) => {
-  let color;
-  let title;
-
-  switch (status) {
-    case 0:
-      color = 'warning';
-      title = 'Pending';
-      break;
-    case 1:
-      color = 'success';
-      title = 'Approved';
-      break;
-    case 2:
-      color = 'error';
-      title = 'Rejected';
-      break;
-    default:
-      color = 'primary';
-      title = 'None';
-  }
-
-  return (
-    <Stack direction="row" spacing={1} alignItems="center">
-      <Dot color={color} />
-      <Typography>{title}</Typography>
-    </Stack>
-  );
-};
-
-OrderStatus.propTypes = {
-  status: PropTypes.number
-};
-
 // ==============================|| ORDER TABLE ||============================== //
 
-export default function OrderTable() {
-  const [order] = useState('asc');
-  const [orderBy] = useState('trackingNo');
-  const [selected] = useState([]);
+export default function OrderTable({shelfDetail}) {
+  // const [page, setPage] = useState(0);
+  // const [rowsPerPage, setRowsPerPage] = useState(5);
+ // const [selected] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [loading, setIsLoading] = useState(true)
 
-  const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
+ // const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
+//  const handleChangePage = (event, newPage) => {
+//   setPage(newPage);
+// };
+
+// const handleChangeRowsPerPage = (event) => {
+//   setRowsPerPage(+event.target.value);
+//   setPage(0);
+// };
+
+
+ async function getEvents(){
+    // setIsLoading(true);
+    //   axios.get("https://www.googleapis.com/books/v1/volumes?q=flowers&filter=free-ebooks&key=AIzaSyCNLoUIq9VdYgmkS77XtPjFM_QlvIdzVX8")
+    //  .then(response => response.data)
+    //     .then((data) => {
+    //       setRows(data)
+    //         setIsLoading(false);
+    //     });
+        let allBookDetails = await getBookShelfData();
+        
+      //  ?.filter((book)=> { book.shelf === shelfDetail
+      //   })    
+        console.log(allBookDetails);
+        console.log(shelfDetail)
+        let availableBooks = shelfDetail==="all"?allBookDetails:allBookDetails.filter((book)=> book?.shelf === shelfDetail)
+        console.log(availableBooks);
+        
+       setRows(availableBooks);
+       setIsLoading(false)
+
+}
+useEffect(()=>{
+    getEvents();
+},[])
 
   return (
-    <Box>
+   <Box>
       <TableContainer
         sx={{
           width: '100%',
+          overflow:"hidden",
           overflowX: 'auto',
           position: 'relative',
           display: 'block',
           maxWidth: '100%',
+          minHeight:'200px',
           '& td, & th': { whiteSpace: 'nowrap' }
         }}
       >
@@ -184,10 +176,16 @@ export default function OrderTable() {
             }
           }}
         >
-          <OrderTableHead order={order} orderBy={orderBy} />
-          <TableBody>
-            {stableSort(rows, getComparator(order, orderBy)).map((row, index) => {
-              const isItemSelected = isSelected(row.trackingNo);
+          <OrderTableHead  />
+          {loading?<Box height="100%" sx={{position: "absolute", top: '60%',left: '50%',overflow:"hidden"}} >
+   <CircularProgress/>
+  </Box>:''}
+          {(!loading && rows.length=== 0) ? <Box height="100%" sx={{position: "absolute", top: '60%',left: '50%',overflow:"hidden"}} >
+    No data to display
+  </Box>:
+          <TableBody sx={{minHeight:"50px"}}>
+            {rows.length>0?rows.map((row, index) => {
+              //const isItemSelected = isSelected(row.trackingNo);
               const labelId = `enhanced-table-checkbox-${index}`;
 
               return (
@@ -195,30 +193,43 @@ export default function OrderTable() {
                   hover
                   role="checkbox"
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  aria-checked={isItemSelected}
+                  // aria-checked={isItemSelected}
                   tabIndex={-1}
-                  key={row.trackingNo}
-                  selected={isItemSelected}
+                  key={row.id}
+                  // selected={isItemSelected}
                 >
                   <TableCell component="th" id={labelId} scope="row" align="left">
-                    <Link color="secondary" component={RouterLink} to="">
-                      {row.trackingNo}
+                    <Link color="secondary" component={RouterLink} to={{ pathname: `/detail-page/${row.id}`}}>
+                      {<img alt={row.title} src={row.cover}></img>}
+                      
                     </Link>
                   </TableCell>
-                  <TableCell align="left">{row.name}</TableCell>
-                  <TableCell align="right">{row.fat}</TableCell>
+                  <TableCell align="left">{row.title}</TableCell>
+                  <TableCell align="left">{(row?.author[0])?row?.author[0]:"William Henry"}</TableCell>
+                  <TableCell align="left"><BookShelfDropDown book={row}/></TableCell>
                   <TableCell align="left">
-                    <OrderStatus status={row.carbs} />
+                    {<Rating name="half-rating" defaultValue={row.title.length/10} precision={0.5} />}
                   </TableCell>
-                  <TableCell align="right">
-                    <NumericFormat value={row.protein} displayType="text" thousandSeparator prefix="$" />
+                  <TableCell align="left">
+                  <Button variant="text">Add Review</Button>
                   </TableCell>
                 </TableRow>
               );
-            })}
-          </TableBody>
+            }):''}
+          </TableBody>}
         </Table>
       </TableContainer>
+       {/* {rows.length> 0 ?
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 20]}
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />:''
+}  */}
     </Box>
   );
 }
