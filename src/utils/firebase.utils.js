@@ -48,9 +48,9 @@ const firebaseConfig = {
       user: userDetails.email,
       shelf: shelfStatus,
       id: bookDetails.id,
-      cover:bookDetails.shelf?bookDetails.cover:bookDetails.volumeInfo.imageLinks.thumbnail,
-      author:bookDetails.shelf?bookDetails.author:(bookDetails.volumeInfo?.authors)?bookDetails.volumeInfo?.authors:'',
-      title:bookDetails.shelf?bookDetails.title:bookDetails.volumeInfo.title
+      cover:(bookDetails && bookDetails.shelf)?bookDetails.cover:bookDetails.volumeInfo.imageLinks.thumbnail,
+      author:(bookDetails && bookDetails.shelf)?bookDetails.author:(bookDetails.volumeInfo?.authors)?bookDetails.volumeInfo?.authors:'',
+      title:(bookDetails && bookDetails.shelf)?bookDetails.title:bookDetails.volumeInfo.title
     })
     .then(() => {
       console.log("Document successfully written!");

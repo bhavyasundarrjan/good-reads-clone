@@ -31,12 +31,14 @@ export default function SamplePage(){
   });
   const description = "A book description is a short summary of a book’s story or content that is designed to “hook” a reader and lead to a sale. Typically, the book’s description conveys important information about its topic or focus (in nonfiction) or the plot and tone (for a novel or any other piece of fiction). Readers can usually find the back description on the back cover of a book, or prominently displayed on retailer websites, like Amazon Self-publishing authors typically write their own book descriptions, though many writers hire professional book marketers with copywriting experience to ensure that their books aren’t held back by an unexciting description.We’ll take you through our tips for writing effective book descriptions below, but first, here’s a free template to help you assemble the elements of yours.";
   const [info,setInfo] = useState({});
+  const [loading,setLoading] =useState(true)
   const [otherBooks , setOtherBooks] = useState([]);
   function getEvents() {
-      axios.get("https://www.googleapis.com/books/v1/volumes",{params:{q:location.bookid,filter:"free-ebooks"}})
+      axios.get(`https://www.googleapis.com/books/v1/volumes/${location.bookid}`)
      .then(response => response.data)
         .then((data) => {
-          setInfo(data)
+          setInfo(data),
+          setLoading(false)
            
         });
       axios.get("https://www.googleapis.com/books/v1/volumes?q=flowers&filter=free-ebooks&key=AIzaSyCNLoUIq9VdYgmkS77XtPjFM_QlvIdzVX8")
@@ -55,6 +57,7 @@ const handleWantToRead = (items) => {
   setBookShelfData(items,"wantToRead");
 };
   return (
+  
     <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
   <Grid item xs={8}>
   <Paper
@@ -66,30 +69,31 @@ const handleWantToRead = (items) => {
           theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
       }}
     >
+      {!loading ?
       <Grid container spacing={2}>
         <Grid item>
           <Box sx={{margin:"10px"}}>
-          <Img alt="complex" src={(info?.items?.length>0)?info?.items[0].volumeInfo.imageLinks.thumbnail:'' } />
+          <Img alt="complex" src={(info?.volumeInfo?.imageLinks?.thumbnail)??'' } />
           </Box>
-            <Button variant="outlined"  sx={{margin:"10px"}} onClick={()=>handleWantToRead((info?.items?.length>0)?info?.items[0]:'')}>Want to Read</Button>
+            <Button variant="outlined"  sx={{margin:"10px"}} onClick={()=>handleWantToRead(info??'')}>Want to Read</Button>
         </Grid>
         <Grid item xs={12} sm container>
           <Grid item xs container direction="column" spacing={2}>
             <Grid item xs>
               <Typography  gutterBottom variant="h2" component="div">
-              {(info?.items?.length>0)?info?.items[0].volumeInfo.title:'' }
+              {(info?.volumeInfo?.title)??'' }
               </Typography>
               <Typography gutterBottom variant="h3" color="text.secondary">
-              {(info?.items?.length>0)?(info?.items[0].volumeInfo.authors)?(info?.items[0].volumeInfo.authors):'William Henry':'Jack Smith' }
+              {(info?.volumeInfo?.authors)?info?.volumeInfo?.authors[0]:'William Henry' }
               </Typography>
               <Rating name="half-rating" fontSize="30px" defaultValue={2.5} precision={0.5} />
               <Typography gutterBottom variant="h5" color="text.secondary">
-              {(info?.items?.length>0)?(info?.items[0].volumeInfo.description)?(info?.items[0].volumeInfo.description):description:description }
+              {(info?.volumeInfo?.description)??description}
               </Typography>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </Grid>:''}
     </Paper>
   </Grid>
   <Grid item xs={4} sx={{height:"100vh"}}>

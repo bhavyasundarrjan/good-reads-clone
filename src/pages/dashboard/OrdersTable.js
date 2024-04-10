@@ -98,6 +98,7 @@ function OrderTableHead() {
             align={headCell.align}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             width={headCell.width}
+            sx={{whiteSpace:'normal !important'}}
           >
             {headCell.label}
           </TableCell>
@@ -162,7 +163,6 @@ useEffect(()=>{
           display: 'block',
           maxWidth: '100%',
           minHeight:'200px',
-          '& td, & th': { whiteSpace: 'nowrap' }
         }}
       >
         <Table
@@ -183,7 +183,7 @@ useEffect(()=>{
           {(!loading && rows.length=== 0) ? <Box height="100%" sx={{position: "absolute", top: '60%',left: '50%',overflow:"hidden"}} >
     No data to display
   </Box>:
-          <TableBody sx={{minHeight:"50px"}}>
+          <TableBody key={rows.length} sx={{minHeight:"50px"}}>
             {rows.length>0?rows.map((row, index) => {
               //const isItemSelected = isSelected(row.trackingNo);
               const labelId = `enhanced-table-checkbox-${index}`;
@@ -198,24 +198,27 @@ useEffect(()=>{
                   key={row.id}
                   // selected={isItemSelected}
                 >
-                  <TableCell component="th" id={labelId} scope="row" align="left">
+                  <TableCell component="th" id={labelId} scope="row" align="left" sx={{whiteSpace:'normal'}} >
                     <Link color="secondary" component={RouterLink} to={{ pathname: `/detail-page/${row.id}`}}>
                       {<img alt={row.title} src={row.cover}></img>}
                       
                     </Link>
                   </TableCell>
-                  <TableCell align="left">{row.title}</TableCell>
-                  <TableCell align="left">{(row?.author[0])?row?.author[0]:"William Henry"}</TableCell>
-                  <TableCell align="left"><BookShelfDropDown book={row}/></TableCell>
-                  <TableCell align="left">
+                  <TableCell align="left" sx={{whiteSpace:'normal'}}>{row.title}</TableCell>
+                  <TableCell align="left"sx={{whiteSpace:'normal'}}>{(row?.author[0])?row?.author[0]:"William Henry"}</TableCell>
+                  <TableCell align="left" sx={{whiteSpace:'normal'}}><BookShelfDropDown book={row}/></TableCell>
+                  <TableCell align="left" sx={{whiteSpace:'normal'}}>
                     {<Rating name="half-rating" defaultValue={row.title.length/10} precision={0.5} />}
                   </TableCell>
-                  <TableCell align="left">
+                  <TableCell align="left" sx={{whiteSpace:'normal'}}>
                   <Button variant="text">Add Review</Button>
                   </TableCell>
                 </TableRow>
               );
-            }):''}
+            }):<TableRow height="100%" sx={{position: "absolute", top: '60%',left: '50%',overflow:"hidden"}} >
+               <TableCell align="left">Loading</TableCell>
+            
+          </TableRow>}
           </TableBody>}
         </Table>
       </TableContainer>
