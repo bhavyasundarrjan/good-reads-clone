@@ -139,10 +139,7 @@ export default function OrderTable({shelfDetail}) {
         
       //  ?.filter((book)=> { book.shelf === shelfDetail
       //   })    
-        console.log(allBookDetails);
-        console.log(shelfDetail)
-        let availableBooks = shelfDetail==="all"?allBookDetails:allBookDetails.filter((book)=> book?.shelf === shelfDetail)
-        console.log(availableBooks);
+        let availableBooks = shelfDetail==="all"?allBookDetails:allBookDetails.filter((book)=> book?.shelf === shelfDetail);
         
        setRows(availableBooks);
        setIsLoading(false)
@@ -180,9 +177,10 @@ useEffect(()=>{
           {loading?<Box height="100%" sx={{position: "absolute", top: '60%',left: '50%',overflow:"hidden"}} >
    <CircularProgress/>
   </Box>:''}
-          {(!loading && rows.length=== 0) ? <Box height="100%" sx={{position: "absolute", top: '60%',left: '50%',overflow:"hidden"}} >
-    No data to display
-  </Box>:
+          {(!loading && rows.length=== 0) ? <TableRow height="100%" sx={{position: "absolute", top: '60%',left: '50%',overflow:"hidden"}} >
+               <TableCell align="left" sx={{border:'none'}}>No data to display</TableCell>
+            
+          </TableRow>:
           <TableBody key={rows.length} sx={{minHeight:"50px"}}>
             {rows.length>0?rows.map((row, index) => {
               //const isItemSelected = isSelected(row.trackingNo);
@@ -216,7 +214,7 @@ useEffect(()=>{
                 </TableRow>
               );
             }):<TableRow height="100%" sx={{position: "absolute", top: '60%',left: '50%',overflow:"hidden"}} >
-               <TableCell align="left">Loading</TableCell>
+               <TableCell align="left" sx={{border:'none'}}>Loading</TableCell>
             
           </TableRow>}
           </TableBody>}
